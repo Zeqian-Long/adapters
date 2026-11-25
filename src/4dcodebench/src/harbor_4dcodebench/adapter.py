@@ -80,6 +80,21 @@ REQUIRED_DATA = {
 # what is copied into the verifier image from data/<kind>/<case>/
 DATA_ENTRIES = {"synthetic": ("world", "estimates"), "real": ("annotation", "estimates")}
 
+
+def required_data(kind: str, base: Path) -> tuple[str, ...]:
+    """REQUIRED_DATA[kind] for the case whose reference data is under `base`.
+
+    Some published synthetic worlds hold only an identity-less liquid: their packed
+    world (Dataset-Synthetic worlds/<case>.h5) has a `solver/` and no `dynamics` group,
+    so the upstream `unpack` writes no `dynamics/` directory (e.g. B_09). Such a case is
+    not incomplete; its reference world is required as published, without `dynamics/`.
+    """
+
+    names = REQUIRED_DATA[kind]
+    if kind == "synthetic" and (base / "world/solver").is_dir() and not (base / "world/dynamics").exists():
+        names = tuple(name for name in names if name != "world/dynamics")
+    return names
+
 PLACEHOLDER = re.compile(r"\{([a-z_]+)\}")
 
 
@@ -285,7 +300,7 @@ class Harbor4DCodeBenchAdapter:
 
     def missing_data(self, case: Case) -> list[str]:
         base = self.data_root / case.key
-        return [name for name in REQUIRED_DATA[case.kind] if not (base / name).exists()]
+        return [name for name in required_data(case.kind, base) if not (base / name).exists()]
 
     # -- generation ----------------------------------------------------------------
 
@@ -396,7 +411,7 @@ class Harbor4DCodeBenchAdapter:
             "case": case.key,
             "kind": case.kind,
             "upstream_commit": commit,
-            "required_data": list(REQUIRED_DATA[case.kind]),
+            "required_data": list(required_data(case.kind, data)),
             "task_timeout_sec": TASK_TIMEOUT_SEC,
             "task_prepare_timeout_sec": TASK_PREPARE_TIMEOUT_SEC,
         }, indent=2) + "\n", encoding="utf-8", newline="\n")

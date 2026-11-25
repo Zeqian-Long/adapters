@@ -2,7 +2,7 @@
   {
     "adapter_name": "4dcodebench",
     "adapter_builders": [
-      "TODO: Name (email)"
+      "Zeqian Long (zeqian@stanford.edu)"
     ],
     "original_benchmark": [
       {
@@ -45,7 +45,7 @@
         "parity_matching_agents": [],
         "parity_unmatching_agents": null,
         "parity_costs": null,
-        "notes": "Oracle submits the published reference world; not yet executed. Parity not yet run."
+        "notes": "Oracle submits the published reference world with a placeholder solution/build.sh. Run on a GPU on all 100 synthetic cases: every reading matched the original scorer exactly on every case. 94 pass both gates; the 6 liquid-only worlds without dynamics/ (B_09, B_11, B_13, B_14, B_19, B_28) fail the original scorer's own world gate; on G_02 and S_02 some metrics are error on both sides under the upstream 32 GiB scorer memory limit. The ceiling is below 1.0 on some metrics for most cases (README, Notes & Caveats). Parity not yet run."
       },
       {
         "split": "real",
